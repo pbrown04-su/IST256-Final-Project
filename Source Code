@@ -1,0 +1,143 @@
+#Function for Usage of Map 
+def get_map(data4, data3):
+    try:
+        CENTER_US = (float(data3['restaurants'][0]['restaurant']['location']['latitude']),float(data3['restaurants'][0]['restaurant']['location']['longitude']))
+        map = folium.Map(location=CENTER_US, zoom_start=10)
+        for i in range(20):
+            data4 = data3['restaurants'][i]['restaurant']
+            pos = float(data4['location']['latitude']),float(data4['location']['longitude'])
+            popup="%s, %s" % (data4['name'], data4['user_rating']['aggregate_rating'])
+            popup=popup.replace("'","")
+            marker = folium.Marker(location=pos,popup=popup)
+                                
+            map.add_child(marker)
+    except IndexError:
+        print('')
+    return map
+
+
+# Necessary Imports for Program
+import folium
+import json
+import requests
+
+# User’s input to begin the program - to avoid errors run through loop of possible responses to begin program. 
+while True:
+    hungry = input('would you like to find the top cuisines in an area? Please enter "Yes" or "No" to view map')
+    if hungry.startswith('Y'):
+        hungry = 'yes'
+    if hungry.startswith('y'):
+        hungry = 'yes'
+    hungry = hungry.lower()
+    if hungry == 'yes':
+
+#Run through Loop for user to enter their city choice - match user’s city choice with given cities from Zomato 
+        while True:
+            city_name = input('enter city to receive id:')
+            try:
+                url = "https://developers.zomato.com/api/v2.1/cities?q=%s" % (city_name)
+                header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": "878764e34afc27c7d0bcae2544f780d3"}
+                response = requests.get(url, headers=header)
+                data = response.json()
+                if len(data['location_suggestions']) == 0:
+                    print('there are no results for %s' % (city_name))
+                else:
+                    break     
+#Exceptions for JSON Errors        
+            except json.decoder.JSONDecodeError as e: 
+                print("ERROR: Cannot decode the response into json")
+                print("DETAILS", e)
+                break
+            except requests.exceptions.HTTPError as e:
+                print("ERROR: Response from ", url, 'was not ok.')
+                print("DETAILS:", e)
+                break
+            except requests.exceptions.RequestException as e: 
+                print("ERROR: Cannot connect to ", url)
+                print("DETAILS:", e)
+                Break
+#Loop to run through User’s Input of City and Match it with ID given in Zomato
+        try:
+            for i in range(10):
+                print('\033[1m' + 'ID:' + '\033[0m',data['location_suggestions'][i]['id'],'\033[1m' + 'City:'+ '\033[0m',data['location_suggestions'][i]['name'])
+        except IndexError:
+            print('')
+
+#Matching City ID from zomato 
+        while True:
+            try:
+                city_id = int(input('please enter your city id:'))
+                break
+            except ValueError:
+                print('not a valid city id')
+        try:
+            url = "https://developers.zomato.com/api/v2.1/cuisines?&city_id=%s" % (city_id)
+            response = requests.get(url, headers=header)
+            data2 = response.json()
+        except json.decoder.JSONDecodeError as e: 
+            print("ERROR: Cannot decode the response into json")
+            print("DETAILS", e)
+            break
+        except requests.exceptions.HTTPError as e:
+            print("ERROR: Response from ", url, 'was not ok.')
+            print("DETAILS:", e)
+            break
+        except requests.exceptions.RequestException as e: 
+            print("ERROR: Cannot connect to ", url)
+            print("DETAILS:", e)
+            Break
+
+#Given match of CITY IDs  - return cuisine choices in your area
+        try:
+            print('\033[1m' + 'Here are the cuisines in your area:'  + '\033[0m')
+            for i in range(150):
+                data3 = data2['cuisines'][i]['cuisine']
+                print('\033[1m' + 'ID:' + '\033[0m',data3['cuisine_id'],'\033[1m' + 'Cuisine:' + '\033[0m',data3['cuisine_name'])
+        except IndexError:
+            print('')
+        while True:
+            try:
+                cuisine_id = int(input('enter the id of your cuisine choice:'))
+                break
+            except ValueError: 
+                print('not a valid id')
+
+#Have user enter their price range - to avoid errors include acceptable inputs 
+        price_range = input('enter your max price per person:')
+        if price_range.startswith('$'):
+            price_range =  price_range.replace("$","")
+        price_range = float(price_range)
+        try:
+            url = "https://developers.zomato.com/api/v2.1/search?entity_id=%s&entity_type=city&cuisines=%s" % (city_id,cuisine_id)
+            response = requests.get(url, headers=header)
+            data3 = response.json()
+        except json.decoder.JSONDecodeError as e: 
+            print("ERROR: Cannot decode the response into json")
+            print("DETAILS", e)
+            break
+        except requests.exceptions.HTTPError as e:
+            print("ERROR: Response from ", url, 'was not ok.')
+            print("DETAILS:", e)
+            break
+        except requests.exceptions.RequestException as e: 
+            print("ERROR: Cannot connect to ", url)
+            print("DETAILS:", e)
+            break
+# Return top restaurants based on cuisine choice and price range
+        try:
+            print('These are the top restaurants for your cuisine choice and price range with their ratings:')
+            for i in range(50):
+                data4 = data3['restaurants'][i]['restaurant']
+                if data4['average_cost_for_two']/2 < price_range: 
+                    print('\033[1m' + data4['name'] + '\033[0m','\033[91m' + data4['user_rating']['aggregate_rating'] + '\033[0m','\033[4m' + data4['user_rating']['rating_text'] + '\033[0m',data4['location']['address'])
+        except IndexError:
+            print('')
+
+#Map Coordinates 
+        CENTER_US = (float(data3['restaurants'][0]['restaurant']['location']['latitude']),float(data3['restaurants'][0]['restaurant']['location']['longitude']))
+        map = folium.Map(location=CENTER_US, zoom_start=10)
+        map
+    else:
+        print('Have a nice day!') #response if initially enter 'no' 
+        break
+get_map(data4, data3) #obtains map
