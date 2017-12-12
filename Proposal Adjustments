@@ -1,0 +1,4 @@
+Group #24 
+Adjustment to Proposals
+1. Initially we wanted to display our end result of restaurants into a pandas dataframe but found it would be too complex due to us not really have much control of the data that is within the API.  We also found that our output appeared better than it would if it would have been placed into a dataframe.
+2. We decided to make use of Open Street Maps as a bonus to show our user’s restaurant locations on a physical map. 
