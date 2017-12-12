@@ -1,0 +1,47 @@
+Group #24
+Final Project - Technical Write Up
+
+Our goal behind our program is to allow users to find Restaurants based on their choice of location, cuisine, and budget. 
+
+Inputs:
+1. Users Response to back-end Question (yes or no) to begin program
+2. User’s Location
+3. City ID to Match User’s Location
+4. Cuisine ID to Match User’s Choice of Cuisine
+5. User’s Price Range
+6. No - to end program and display Map
+
+Outputs:
+1. City ID(s) for possible location matches to given location from User
+2. Cuisine ID(s) based on available cuisines in city 
+3. Restaurant options based on City, Choice of Cuisine and Price Range
+4. Map with markers of given restaurants, displaying restaurant name and rating
+
+
+Algorithm:
+1. Built Function for Map - to display Restaurants as Markers on Map based on User’s Input 
+    Inclusion of Necessary Imports for our program (JSON,Requests, Folium)
+      For usage of API and Open Street Maps
+
+2. Ask user question to respond yes or no to begin the program
+    To avoid possible errors, we included an if statement to detect possible yes responses such as anything that starts with “y” and avoiding issues with if it is capital or lowercase.
+
+3. Ask user for their City
+
+4. Based on their input, match user’s city to the given cities in the Zomato API and return with City IDs.	
+        Being that we display world-wide results, only United States would have a city and state code so cities are matched with ID(s) to be concrete and solid
+        Include necessary exceptions for JSON/Web API errors
+
+5. Have user Enter City ID that matches their City 
+
+6. Print out Cuisines and IDs within Given City
+        Made use of for loop within a range to give us a large amount of cuisines within API
+7. Have user enter the matching Cuisine ID
+8. Ask user to enter their price range
+      It accepts ‘$’ in prior just in case user decides to enter a $
+      API gives price per 2 people, we recalculated it for it to price per 1 person. 
+9. Print Out Restaurant Choices from user’s inputs with Rating and Address 
+10. Ask user to Enter “No” to Display Map with restaurants plotted on map , markers include restaurant name and rating
+      We ask user to enter “no” to trigger the code to exit the program so it can call the map function which is outside of the loop. 
+
+
